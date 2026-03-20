@@ -3,16 +3,18 @@
 import sys
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt
-from PySide6.QtCore import QFile
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import QFile, QRect
+from PySide6.QtGui import QPixmap, QPainter, QColor, QPen
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QFrame
 )
+
+from pix2text.layout_parser import ElementType
+
 from ui_mainwindow import Ui_MainWindow
 from p2t_image import P2TImage
 from p2t import P2T
-from layoutparserparser import LayoutManager
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -54,8 +56,51 @@ class MainWindow(QMainWindow):
     def on_button_click(self):
         print("Click !")
         layout_out, column_meta = self.p2t.parse_layout(self.image)
-        for _id, box_info in enumerate(layout_out):
-            print(_id, box_info['type'], box_info['position'], box_info['score'])
+        #for _id, box_info in enumerate(layout_out):
+        #    print(_id, box_info['type'], box_info['position'], box_info['score'])
+        self.overlay_boxes(layout_out)
+
+    def overlay_boxes(self, layout_out):
+        # Créer une copie du QPixmap actuel pour ne pas modifier l'original
+        pixmap = self.ui.leftLabel.pixmap().copy()
+
+        # Créer un QPainter pour dessiner sur le QPixmap
+        painter = QPainter(pixmap)
+
+        # Définir les couleurs pour chaque type d'élément
+        color_map = {
+            'TEXT': QColor(255, 0, 0, 100),    # Rouge translucide
+            'FIGURE': QColor(0, 255, 0, 100),  # Vert translucide
+            'FORMULA': QColor(0, 0, 255, 100), # Bleu translucide
+            'IGNORED': QColor(255, 255, 0, 100) # Jaune translucide
+        }
+
+        # Définir le style du pinceau pour les boîtes
+        painter.setPen(QPen(Qt.NoPen))  # Pas de bordure
+
+        # Dessiner les boîtes pour chaque élément du layout
+        for box_info in layout_out:
+            position = box_info['position']
+            element_type = box_info['type']
+
+            element_type_str = str(element_type)
+            # Obtenir la couleur associée au type d'élément
+            color = color_map.get(element_type_str, QColor(128, 128, 128, 100))  # Gris par défaut
+            painter.setBrush(color)
+
+            # Convertir les coordonnées en QRect
+            x_min, y_min = position[0]
+            x_max, y_max = position[2]
+            rect = QRect(int(x_min), int(y_min), int(x_max - x_min), int(y_max - y_min))
+
+            # Dessiner le rectangle
+            painter.drawRect(rect)
+
+        # Terminer le dessin
+        painter.end()
+
+        # Mettre à jour le QLabel avec le nouveau QPixmap
+        self.ui.leftLabel.setPixmap(pixmap)
         
 
 def main():
