@@ -14,7 +14,9 @@ class P2TImage:
         self.qpixmap = None
     
     def load_image(self):
-        self.pil_image = Image.open(self.img_fp).convert('RGBA')
+        raw_image = Image.open(self.img_fp).convert('RGBA')
+        background = Image.new('RGBA', raw_image.size, (255, 255, 255))
+        self.pil_image = Image.alpha_composite(background, raw_image)
 
     def get_qpixmap(self):
         if self.qpixmap is None:
