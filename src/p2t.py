@@ -5,6 +5,13 @@ from PIL import Image
 from pix2text import Pix2Text
 #from pix2text.layout_parser import LayoutParser, ElementType
 
+class P2T:
+    def __init__(self):
+        self.p2t = Pix2Text.from_config()
+    
+    def parse_layout(self, image):
+        return self.p2t.layout_parser.parse(image.pil_image)
+
 def parse_layout():
     pdf_fp = './samples/sample1.pdf'
     doc = fitz.open(pdf_fp, filetype='pdf')

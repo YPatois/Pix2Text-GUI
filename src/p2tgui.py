@@ -11,12 +11,16 @@ from PySide6.QtWidgets import (
 )
 from ui_mainwindow import Ui_MainWindow
 from p2t_image import P2TImage
+from p2t import P2T
+from layoutparserparser import LayoutManager
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow,self).__init__()
         self.load_ui()
         self.setup_ui()
+        self.setup_connections()
+        self.p2t = P2T()
 
     def load_ui(self):
         self.ui = Ui_MainWindow()
@@ -43,6 +47,16 @@ class MainWindow(QMainWindow):
             self.left_label.setScaledContents(True)
         else:
             print(f"Error image not found: '{image_path}'.")
+
+    def setup_connections(self):
+        self.ui.pushButton.clicked.connect(self.on_button_click)
+
+    def on_button_click(self):
+        print("Click !")
+        layout_out, column_meta = self.p2t.parse_layout(self.image)
+        for _id, box_info in enumerate(layout_out):
+            print(_id, box_info['type'], box_info['position'], box_info['score'])
+        
 
 def main():
     app = QApplication(sys.argv)
