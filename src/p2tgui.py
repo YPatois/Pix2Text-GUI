@@ -20,10 +20,7 @@ class MainWindow(QMainWindow):
     def load_ui(self):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        #self.setCentralWidget(self)
         self.setWindowTitle("P2T")
-        self.resize(900, 650)
-
 
     def setup_ui(self):
         self.left_label = self.ui.leftLabel
