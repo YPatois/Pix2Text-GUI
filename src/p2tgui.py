@@ -36,20 +36,14 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap(image_path)
         if not pixmap.isNull():
             # Fill area with image (keep aspect ratio)
-            pixmap = pixmap.scaled(
-                self.left_label.size(),
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation)
+            #pixmap = pixmap.scaled(
+            #    self.left_label.size(),
+            #    Qt.KeepAspectRatio,
+            #    Qt.SmoothTransformation)
             self.left_label.setPixmap(pixmap)
             self.left_label.setScaledContents(True)
         else:
             print(f"Error image not found: '{image_path}'.")
-
-    def resizeEvent(self, event):
-        # If area is resized
-        #if hasattr(self, 'left_label') and self.left_label.pixmap():
-        #    self.load_image()
-        super().resizeEvent(event)
 
 def main():
     app = QApplication(sys.argv)
