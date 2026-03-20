@@ -8,9 +8,18 @@ from pix2text import Pix2Text
 class P2T:
     def __init__(self):
         self.p2t = Pix2Text.from_config()
+        self.layout = None
     
     def parse_layout(self, image):
-        return self.p2t.layout_parser.parse(image.pil_image)
+        self.layout = self.p2t.layout_parser.parse(image.pil_image)
+        return self.layout
+
+    def convert_to_md(self, image):
+        # FIXME: Not reusing the layout computed above
+        page = self.p2t.recognize_page(image.pil_image)
+        md = page.to_markdown("", None, None)
+        return md
+        
 
 def parse_layout():
     pdf_fp = './samples/sample1.pdf'

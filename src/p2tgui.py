@@ -3,8 +3,7 @@
 import sys
 
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QFile, QRect
+from PySide6.QtCore import Qt, QEvent, QFile, QRect
 from PySide6.QtGui import QPixmap, QPainter, QColor, QPen, QKeySequence, QClipboard, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
@@ -21,9 +20,10 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow,self).__init__()
         self.load_ui()
-        self.setup_ui()
+        #self.setup_ui()
         self.setup_connections()
         self.setup_shortcuts()
+        #self.ui.leftLabel.installEventFilter(self)
         self.p2t = P2T()
 
     def load_ui(self):
@@ -60,6 +60,16 @@ class MainWindow(QMainWindow):
         # Create a shortcut for CTRL-V
         shortcut_paste = QShortcut(QKeySequence.Paste, self)
         shortcut_paste.activated.connect(self.paste_image_from_clipboard)
+        pass
+    
+    def eventFilter(self, obj, event):
+        # Vérifier si l'objet est le QLabel de gauche et si l'événement est un appui sur CTRL-V
+        if obj == self.ui.leftLabel and event.type() == QEvent.KeyPress:
+            key_event = event
+            if (key_event.key() == Qt.Key_V) and (key_event.modifiers() & Qt.ControlModifier):
+                self.paste_image_from_clipboard()
+                return True  # Indique que l'événement a été traité
+        return super().eventFilter(obj, event)
 
     def paste_image_from_clipboard(self):
         # Get the clipboard data
@@ -86,6 +96,8 @@ class MainWindow(QMainWindow):
             print(col_number, col_info['position'], col_info['score'])
 
         self.overlay_boxes(layout_out)
+        md = self.p2t.convert_to_md(self.image)
+        self.fill_text_box(md)
 
     def overlay_boxes(self, layout_out):
         # Créer une copie du QPixmap actuel pour ne pas modifier l'original
@@ -128,7 +140,11 @@ class MainWindow(QMainWindow):
 
         # Mettre à jour le QLabel avec le nouveau QPixmap
         self.ui.leftLabel.setPixmap(pixmap)
-        
+
+    def fill_text_box(self, content):
+        """Fill the text box with the given content."""
+        text_box = self.ui.rightTextBrowser
+        text_box.setPlainText(content)        
 
 def main():
     app = QApplication(sys.argv)

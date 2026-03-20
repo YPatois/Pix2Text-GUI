@@ -7,7 +7,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QMainWindow, QPushButton, QSizePolicy, QVBoxLayout,
-    QWidget)
+    QWidget, QTextEdit, QTextBrowser)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -37,15 +37,25 @@ class Ui_MainWindow(object):
 
         self.rightFrame = QFrame(self.centralwidget)
         self.rightFrame.setObjectName(u"rightFrame")
+
         self.rightFrame.setFrameShape(QFrame.StyledPanel)
         self.rightFrame.setFrameShadow(QFrame.Raised)
+
         self.rightLayout = QVBoxLayout(self.rightFrame)
         self.rightLayout.setObjectName(u"rightLayout")
+
         self.rightLabel = QLabel(self.rightFrame)
         self.rightLabel.setObjectName(u"rightLabel")
+
         self.rightLabel.setAlignment(Qt.AlignCenter)
 
         self.rightLayout.addWidget(self.rightLabel)
+
+        # TextBrowser for right frame (non-editable, selectable)
+        self.rightTextBrowser = QTextBrowser(self.rightFrame)
+        self.rightTextBrowser.setObjectName(u"rightTextBrowser")
+        self.rightTextBrowser.setReadOnly(True)
+        self.rightLayout.addWidget(self.rightTextBrowser)
 
 
         self.horizontalLayout.addWidget(self.rightFrame)
