@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 
 import sys
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import Qt
+from PySide6.QtCore import QFile
+from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QFrame
 )
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import Qt
-from PySide6.QtCore import QFile
 from ui_mainwindow import Ui_MainWindow
-from PySide6.QtGui import QPixmap
+from p2t_image import P2TImage
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -30,7 +31,8 @@ class MainWindow(QMainWindow):
             print("Error not found: 'leftLabel'.")
 
     def load_image(self, image_path):
-        pixmap = QPixmap(image_path)
+        self.image = P2TImage("./samples/sample1.png")
+        pixmap = self.image.get_qpixmap()
         if not pixmap.isNull():
             # Fill area with image (keep aspect ratio)
             #pixmap = pixmap.scaled(
