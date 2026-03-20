@@ -8,12 +8,12 @@ from PySide6.QtGui import QPixmap, QImage
 #from PySide6.QtWidgets import QApplication
 
 class P2TImage:
-    def __init__(self, img_fp):
-        self.img_fp = img_fp
-        self.load_image()
+    def __init__(self):
+        self.img_fp = None
         self.qpixmap = None
     
-    def load_image(self):
+    def load_image(self, img_fp):
+        self.img_fp = img_fp
         raw_image = Image.open(self.img_fp).convert('RGBA')
         background = Image.new('RGBA', raw_image.size, (255, 255, 255))
         self.pil_image = Image.alpha_composite(background, raw_image)
@@ -23,6 +23,10 @@ class P2TImage:
             qim = ImageQt(self.pil_image)
             self.qpixmap = QPixmap.fromImage(qim)
         return self.qpixmap
+    
+    def set_from_qimage(self, qimage):
+        self.qpixmap = QPixmap.fromImage(qimage)
+        self.pil_image = Image.fromqimage(qimage)
 
 if __name__ == "__main__":
     pass

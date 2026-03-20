@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import sys
+
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QFile, QRect
-from PySide6.QtGui import QPixmap, QPainter, QColor, QPen
+from PySide6.QtGui import QPixmap, QPainter, QColor, QPen, QKeySequence, QClipboard, QShortcut
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QFrame
@@ -22,6 +23,7 @@ class MainWindow(QMainWindow):
         self.load_ui()
         self.setup_ui()
         self.setup_connections()
+        self.setup_shortcuts()
         self.p2t = P2T()
 
     def load_ui(self):
@@ -37,7 +39,8 @@ class MainWindow(QMainWindow):
             print("Error not found: 'leftLabel'.")
 
     def load_image(self, image_path):
-        self.image = P2TImage("./samples/sample1.png")
+        self.image = P2TImage()
+        self.image.load_image("./samples/sample1.png")
         pixmap = self.image.get_qpixmap()
         if not pixmap.isNull():
             # Fill area with image (keep aspect ratio)
@@ -53,11 +56,35 @@ class MainWindow(QMainWindow):
     def setup_connections(self):
         self.ui.pushButton.clicked.connect(self.on_button_click)
 
+    def setup_shortcuts(self):
+        # Create a shortcut for CTRL-V
+        shortcut_paste = QShortcut(QKeySequence.Paste, self)
+        shortcut_paste.activated.connect(self.paste_image_from_clipboard)
+
+    def paste_image_from_clipboard(self):
+        # Get the clipboard data
+        clipboard = QApplication.clipboard()
+        image = clipboard.image()
+
+        if not image.isNull():
+            self.image = P2TImage()
+            self.image.set_from_qimage(image)
+            # Convert the clipboard image to a QPixmap
+            pixmap = self.image.get_qpixmap()
+            # Update the QLabel with the new pixmap
+            self.ui.leftLabel.setPixmap(pixmap)
+        else:
+            print("No image found in clipboard.")
+
     def on_button_click(self):
         print("Click !")
         layout_out, column_meta = self.p2t.parse_layout(self.image)
         #for _id, box_info in enumerate(layout_out):
         #    print(_id, box_info['type'], box_info['position'], box_info['score'])
+
+        for col_number, col_info in column_meta.items():
+            print(col_number, col_info['position'], col_info['score'])
+
         self.overlay_boxes(layout_out)
 
     def overlay_boxes(self, layout_out):
